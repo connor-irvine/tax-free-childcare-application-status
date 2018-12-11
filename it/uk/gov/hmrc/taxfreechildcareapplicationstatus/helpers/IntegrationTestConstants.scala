@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers
+package uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers
 
-import org.scalatest.{Matchers, WordSpec}
-import play.api.http.Status._
-import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.{ComponentSpecBase, CustomMatchers}
+import java.util.UUID
 
-class MicroserviceHelloWorldISpec extends WordSpec with Matchers with ComponentSpecBase with CustomMatchers {
+import uk.gov.hmrc.domain.Generator
 
-  "GET /hello-world" should {
-    "return a status of OK" in {
+object IntegrationTestConstants {
 
-      val result = get("/hello-world")
-
-      result should have(
-        httpStatus(OK)
-      )
-    }
-  }
+  val testNino: String = new Generator().nextNino.nino
+  val testUniqueClaimId: String = UUID.randomUUID().toString
 
 }
