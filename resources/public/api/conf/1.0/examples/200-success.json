@@ -1,0 +1,93 @@
+{
+  "parent": {
+    "applicationID": "12345678910",
+    "names": {
+      "forename": "ADULTFORENAME",
+      "surname": "ADULTSURNAME"
+    },
+    "dateOfBirth": "1994-03-18",
+    "nino": "AA010013C"
+  },
+  "children": [
+    {
+      "names": {
+        "forename": "CHILDFORENAME",
+        "middleNames": "CHILDMIDDLE",
+        "surname": "CHILDSURNAME"
+      },
+      "childID": "12345678910",
+      "crn": "CH010013",
+      "dateOfBirth": "2013-09-02",
+      "duplicate": false,
+      "eligibility": [
+        {
+          "applicationScheme": "TFC",
+          "status": "Eligible",
+          "sequenceID": 3,
+          "eligibilityPeriodStartDate": "2018-07-24",
+          "eligibilityPeriodEndDate": "2018-10-24",
+          "topUpAmount": 500,
+          "responseTimestamp": "2018-07-24T12:00:00.000Z"
+        },
+        {
+          "applicationScheme": "TFC",
+          "status": "Ineligible",
+          "sequenceID": 2,
+          "processingIndicator": "Initial Reconfirmation",
+          "reasons": [
+            {
+              "reason": "your child's details"
+            }
+          ],
+          "responseTimestamp": "2018-07-24T10:59:35.000Z"
+        },
+        {
+          "applicationScheme": "TFC",
+          "status": "Eligible",
+          "sequenceID": 1,
+          "processingIndicator": "Initial Application",
+          "eligibilityPeriodStartDate": "2018-03-24",
+          "eligibilityPeriodEndDate": "2018-07-24",
+          "topUpAmount": 500,
+          "responseTimestamp": "2018-03-24T10:59:35.000Z"
+        }
+      ]
+    },
+    {
+      "names": {
+        "forename": "CHILDFORENAMETWO",
+        "middleNames": "CHILDMIDDLETWO",
+        "surname": "CHILDSURNAMETWO"
+      },
+      "childID": "10987654321",
+      "crn": "CH020013",
+      "dateOfBirth": "2015-08-21",
+      "duplicate": false,
+      "eligibility": [
+        {
+          "applicationScheme": "15D",
+          "status": "Eligible",
+          "sequenceID": 1,
+          "processingIndicator": "Initial Application",
+          "dfeVoucherCode": "10987654321",
+          "eligibilityPeriodStartDate": "2018-03-24",
+          "eligibilityPeriodEndDate": "2018-07-24",
+          "topUpAmount": 500,
+          "responseTimestamp": "2018-03-24T10:59:35.000Z"
+        },
+        {
+          "applicationScheme": "TFC",
+          "status": "Ineligible",
+          "sequenceID": 1,
+          "processingIndicator": "Initial Application",
+          "reasons": [
+            {
+              "reason": "your child's details"
+            }
+          ],
+          "timestamp": "2018-03-24T10:59:35.000Z"
+        }
+      ]
+    }
+  ]
+}

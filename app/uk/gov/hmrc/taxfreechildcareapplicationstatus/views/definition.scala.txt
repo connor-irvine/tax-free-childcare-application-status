@@ -1,0 +1,26 @@
+@import play.api.libs.json.Json
+@import uk.gov.hmrc.taxfreechildcareapplicationstatus.models.api.APIAccess
+
+@(access: APIAccess, apiContext: String)
+{
+  "scopes":[
+    {
+        "key": "read:tax-free-childcare-application-status",
+        "name": "Tax Free Childcare Application Status",
+        "description": "Check status of Tax Free Childcare application"
+    }
+  ],
+  "api": {
+    "name": "Tax Free Childcare Application Status",
+    "description": "Provides real time income information for an individual",
+    "context": "@apiContext",
+    "versions": [
+      {
+        "version": "1.0",
+        "status": "BETA",
+        "endpointsEnabled": true,
+        "access": @Json.toJson(access)
+      }
+    ]
+  }
+}
