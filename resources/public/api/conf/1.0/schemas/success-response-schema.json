@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "API 45 Get TFC Claim History (1446)",
+  "title": "Tax Free Childcare Application Status",
   "type": "object",
   "additionalProperties": false,
   "properties": {
