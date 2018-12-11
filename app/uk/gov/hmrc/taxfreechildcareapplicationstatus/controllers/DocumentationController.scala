@@ -26,11 +26,14 @@ import uk.gov.hmrc.taxfreechildcareapplicationstatus.views.txt
 @Singleton
 class DocumentationController @Inject()(appContext: AppContext, cc: ControllerComponents, assets: Assets, errorHandler: HttpErrorHandler) extends uk.gov.hmrc.api.controllers.DocumentationController(cc, assets, errorHandler) {
 
-  override def documentation(version: String, file: String): Action[AnyContent] = {
-    super.documentation(s"/resources/public/api/conf/$version", file)
-  }
+  override def documentation(version: String, endpointName: String): Action[AnyContent] =
+    super.documentation(version, endpointName)
 
   override def definition(): Action[AnyContent] = Action {
     Ok(txt.definition(appContext.apiAccess, appContext.apiContext))
   }
+
+  override def conf(version: String, file: String): Action[AnyContent] =
+    super.conf(version, file)
+
 }

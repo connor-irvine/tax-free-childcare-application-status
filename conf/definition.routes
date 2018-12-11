@@ -1,2 +1,5 @@
-GET        /api/definition            @uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.DocumentationController.definition
-GET        /api/conf/:version/*file   @uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.DocumentationController.conf(version, file)
+GET        /api/definition                     @uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.DocumentationController.definition
+
+GET        /api/documentation/:version/*file   @uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.DocumentationController.documentation(version, file)
+
+GET        /api/conf/:version/*file            @uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.DocumentationController.conf(version, file)
