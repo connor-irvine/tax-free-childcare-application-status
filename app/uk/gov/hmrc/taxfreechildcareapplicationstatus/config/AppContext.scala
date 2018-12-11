@@ -23,6 +23,11 @@ import uk.gov.hmrc.taxfreechildcareapplicationstatus.models.api.APIAccess
 
 @Singleton
 class AppContext @Inject()(runMode: RunMode, configuration: Configuration) extends ServicesConfig(configuration, runMode) {
-  lazy val apiContext: String = ???
-  lazy val apiAccess: APIAccess = ???
+  private val apiContextConfigKey = "api.context"
+  private val apiAccessTypeKey = "api.access.type"
+  private val apiAccessWhitelistKey = "api.access.whitelistedApplicationIds"
+
+  lazy val apiContext: String = configuration.get[String](apiContextConfigKey)
+  lazy val apiAccess: APIAccess = APIAccess(configuration.get[String](apiAccessTypeKey),
+    configuration.get[Option[Seq[String]]](apiAccessWhitelistKey))
 }

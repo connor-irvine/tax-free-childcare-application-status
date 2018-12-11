@@ -18,7 +18,7 @@ package uk.gov.hmrc.taxfreechildcareapplicationstatus.models.api
 
 import play.api.libs.json.{Json, OFormat}
 
-case class  APIAccess(`type`: String, whitelistedApplicationIds: Option[Seq[String]])
+case class APIAccess(`type`: String, whitelistedApplicationIds: Option[Seq[String]])
 
 object APIAccess {
   implicit val apiAccessFormats: OFormat[APIAccess] = Json.format[APIAccess]
