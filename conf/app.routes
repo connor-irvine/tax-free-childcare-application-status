@@ -1,3 +1,5 @@
 # microservice specific routes
 
-GET        /hello-world             uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.MicroserviceHelloWorld.hello
+GET        /hello-world                          uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.MicroserviceHelloWorld.hello
+
+GET        /claims/:nino/:uniqueClaimsId        uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController.getTfcHistory(nino, uniqueClaimsId)

@@ -27,7 +27,6 @@ import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.AppConfig
 @Singleton
 class GetTfcHistoryParser @Inject()(appConfig: AppConfig) {
 
-
   private def useAsSchema(jsValue: JsValue): SchemaType = Json.fromJson[SchemaType](jsValue).get
 
   lazy val okSchema: SchemaType = useAsSchema(appConfig.getTfcHistoryOkResponseSchema)
