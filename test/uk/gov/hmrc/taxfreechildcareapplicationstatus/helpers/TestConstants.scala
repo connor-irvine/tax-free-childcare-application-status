@@ -20,7 +20,8 @@ import uk.gov.hmrc.domain.Generator
 
 import scala.util.Random
 
-object IntegrationTestConstants {
+
+object TestConstants {
 
   val testNino: String = new Generator().nextNino.nino
   val testUniqueClaimId: String = f"${Random.nextInt(Math.pow(10, 11).toInt)}%011d"
