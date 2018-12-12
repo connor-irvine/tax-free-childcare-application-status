@@ -14,7 +14,8 @@ object AppDependencies {
     "org.pegdown"             %  "pegdown"                     % "1.6.0"                 % "test, it",
     "com.github.tomakehurst"  %  "wiremock"                    % "2.19.0"                % "test, it",
     "org.scalatestplus.play"  %% "scalatestplus-play"          % "3.1.2"                 % "test, it",
-    "uk.gov.hmrc"             %% "domain"                      % "5.2.0"
+    "uk.gov.hmrc"             %% "domain"                      % "5.2.0"                 % "test, it",
+    "org.mockito"             % "mockito-core"                 % "2.23.4"                % "test, it"
   )
 
   // Fixes a transitive dependency clash between wiremock and scalatestplus-play
