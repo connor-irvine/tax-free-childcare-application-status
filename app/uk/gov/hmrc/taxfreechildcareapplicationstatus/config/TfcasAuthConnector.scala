@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers
+package uk.gov.hmrc.taxfreechildcareapplicationstatus.config
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.mvc._
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-import scala.concurrent.Future
 
-@Singleton()
-class MicroserviceHelloWorld @Inject()(cc: ControllerComponents) extends BackendController(cc) {
+@Singleton
+class TfcasAuthConnector @Inject()(val appConfig: AppConfig,
+                                   val httpClient: HttpClient) extends PlayAuthConnector {
 
-  def hello() = Action.async { implicit request =>
-    Future.successful(Ok("Hello world"))
-  }
-
+  lazy val serviceUrl: String = appConfig.authUrl
+  lazy val http: HttpClient = httpClient
 }

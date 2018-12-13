@@ -14,4 +14,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
-  .settings(resolvers += Resolver.jcenterRepo)
+  .settings(
+    resolvers += Resolver.jcenterRepo,
+    resolvers += "emueller-bintray" at "http://dl.bintray.com/emueller/maven"
+  )
+

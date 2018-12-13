@@ -16,21 +16,26 @@
 
 package uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers
 
-import controllers.Assets
 import javax.inject.{Inject, Singleton}
+
+import controllers.Assets
 import play.api.http.HttpErrorHandler
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.AppContext
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.AppConfig
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.views.txt
 
 @Singleton
-class DocumentationController @Inject()(appContext: AppContext, cc: ControllerComponents, assets: Assets, errorHandler: HttpErrorHandler) extends uk.gov.hmrc.api.controllers.DocumentationController(cc, assets, errorHandler) {
+class DocumentationController @Inject()(appConfig: AppConfig,
+                                        cc: ControllerComponents,
+                                        assets: Assets,
+                                        errorHandler: HttpErrorHandler)
+  extends uk.gov.hmrc.api.controllers.DocumentationController(cc, assets, errorHandler) {
 
   override def documentation(version: String, endpointName: String): Action[AnyContent] =
     super.documentation(version, endpointName)
 
   override def definition(): Action[AnyContent] = Action {
-    Ok(txt.definition(appContext.apiAccess, appContext.apiContext))
+    Ok(txt.definition(appConfig.apiAccess, appConfig.apiContext))
   }
 
   override def conf(version: String, file: String): Action[AnyContent] =
