@@ -22,7 +22,7 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.ComponentSpecBase
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.IntegrationTestConstants._
-import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.servicemocks.DesGetTfcHistoryMock._
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.servicemocks.DesGetTfcHistoryStub._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.httpparsers.GetTfcHistoryParser._
 
 import scala.io.Source
@@ -55,7 +55,7 @@ class GetTfcHistoryConnectorISpec extends WordSpec with Matchers with ComponentS
 
         val response = connector.getClaimsHistory(testNino, testUniqueClaimId).futureValue
 
-        response shouldBe Left(NotFoundErr)
+        response shouldBe Left(GetTfcHistoryError(NotFoundErrCode, "The back end has returned a not found response: *backend reason for not found*"))
       }
     }
   }

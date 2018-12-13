@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers
 
+import java.util.UUID
+
 import uk.gov.hmrc.domain.Generator
 
 import scala.util.Random
@@ -24,5 +26,7 @@ object IntegrationTestConstants {
 
   val testNino: String = new Generator().nextNino.nino
   val testUniqueClaimId: String = f"${Random.nextInt(Math.pow(10, 11).toInt)}%011d"
+  val testOriginatorId: String = UUID.randomUUID().toString
+  val testCorrelationId: String = UUID.randomUUID().toString
 
 }

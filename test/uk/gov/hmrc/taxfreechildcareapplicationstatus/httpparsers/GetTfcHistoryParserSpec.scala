@@ -79,7 +79,7 @@ class GetTfcHistoryParserSpec extends WordSpec with Matchers with GuiceOneAppPer
         res shouldBe Left(InvalidOriginatorIdErr)
       }
 
-      "parse a BAD_REQUEST with BusinessValidationErrCode and a valid err message response as a BusinessValidation" in {
+      "parse a BAD_REQUEST with BusinessValidationErrCode and a valid err message response as a GetTfcHistoryError" in {
         val testErrMsg = BusinessValidationErrMessageRegex.replace(".*", "*failure reason*").filterNot(c => c == '^' || c == '$')
         val testResponseBody = GetTfcHistoryError(BusinessValidationErrCode, testErrMsg)
         val httpResponse = HttpResponse(BAD_REQUEST, Some(Json.toJson(testResponseBody)))
@@ -110,18 +110,19 @@ class GetTfcHistoryParserSpec extends WordSpec with Matchers with GuiceOneAppPer
         res shouldBe Left(GetTfcHistoryUnexpectedError(BAD_REQUEST, Json.prettyPrint(Json.toJson(testResponseBody))))
       }
 
-      "parse a NOT_FOUND with not found response as NotFound" in {
-        val httpResponse = HttpResponse(NOT_FOUND, Some(Json.toJson(NotFoundErr)))
+      "parse a NOT_FOUND with NotFoundErrCode and valid err message response as a GetTfcHistoryError" in {
+        val testErrMsg = NotFoundErrMessageRegex.replace(".*", "*failure reason*").filterNot(c => c == '^' || c == '$')
+        val testResponseBody = GetTfcHistoryError(NotFoundErrCode, testErrMsg)
+        val httpResponse = HttpResponse(NOT_FOUND, Some(Json.toJson(testResponseBody)))
 
         val res = GetTfcHistoryRequestHttpReads.read(testHttpVerb, testUri, httpResponse)
 
-        res shouldBe Left(NotFoundErr)
+        res shouldBe Left(testResponseBody)
       }
 
       "parse a NOT_FOUND with an invalid response as GetTfcHistoryUnexpectedError" in {
-        val testErrCode = "invalid code"
         val testErrMsg = "invalid message"
-        val testResponseBody = GetTfcHistoryError(testErrCode, testErrMsg)
+        val testResponseBody = GetTfcHistoryError(NotFoundErrCode, testErrMsg)
         val httpResponse = HttpResponse(NOT_FOUND, Some(Json.toJson(testResponseBody)))
 
         val res = GetTfcHistoryRequestHttpReads.read(testHttpVerb, testUri, httpResponse)
