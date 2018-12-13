@@ -57,7 +57,7 @@ class GetTfcHistoryController @Inject()(cc: ControllerComponents,
           getTfcHistoryService.getClaimsHistory(nino, uniqueClaimsId) map {
             case Right(json) => Ok(json)
             case Left(x@(InvalidNinoErr | InvalidUcidErr | InvalidOriginatorIdErr)) => BadRequest(Json.toJson(x.asInstanceOf[GetTfcHistoryError]))
-            case Left(NotFoundErr) => NotFound(Json.toJson(NotFoundErr))
+            case Left(x@GetTfcHistoryError(NotFoundErrCode, _)) => NotFound(Json.toJson(x))
             case Left(x@GetTfcHistoryError(BusinessValidationErrCode, _)) => BadRequest(Json.toJson(x))
             case Left(ServerErrorErr) => InternalServerError(Json.toJson(ServerErrorErr))
             case Left(ServiceUnavailableErr) => ServiceUnavailable(Json.toJson(ServiceUnavailableErr))

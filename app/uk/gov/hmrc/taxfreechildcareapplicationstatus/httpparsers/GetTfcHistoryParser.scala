@@ -55,7 +55,7 @@ class GetTfcHistoryParser @Inject()(appConfig: AppConfig) {
           })
         case NOT_FOUND if isValidFailureResponse =>
           Left(jsonBody.validate[GetTfcHistoryError] match {
-            case JsSuccess(NotFoundErr, _) => NotFoundErr
+            case JsSuccess(response@GetTfcHistoryError(NotFoundErrCode, errMsg), _) if errMsg.matches(NotFoundErrMessageRegex) => response
             case _ => GetTfcHistoryUnexpectedError(NOT_FOUND, response.body)
           })
         case INTERNAL_SERVER_ERROR if isValidFailureResponse =>
@@ -94,12 +94,14 @@ object GetTfcHistoryParser {
   val InvalidNinoErr = GetTfcHistoryError("INVALID_NINO", "Submission has not passed validation. Invalid nino.")
   val InvalidUcidErr = GetTfcHistoryError("INVALID_UCID", "Submission has not passed validation. Invalid Unique Claim Id.")
   val InvalidOriginatorIdErr = GetTfcHistoryError("INVALID_ORIGINATOR_ID", "Submission has not passed validation. Invalid header Originator-Id.")
-  val NotFoundErr = GetTfcHistoryError("NOT_FOUND", "The back end has indicated that the nino is not found")
   val ServerErrorErr = GetTfcHistoryError("SERVER_ERROR", "DES is currently experiencing problems that require live service intervention.")
   val ServiceUnavailableErr = GetTfcHistoryError("SERVICE_UNAVAILABLE", "Dependent systems are currently not responding")
 
   val BusinessValidationErrCode = "BUSINESS_VALIDATION"
-  val BusinessValidationErrMessageRegex = "^The back end has returned a business validation error: .*$"
+  val BusinessValidationErrMessageRegex = "^The back end has returned a business validation error:.*$"
+
+  val NotFoundErrCode = "NOT_FOUND"
+  val NotFoundErrMessageRegex = "^The back end has returned a not found response:.*$"
 
   case class GetTfcHistoryUnexpectedError(status: Int, body: String) extends GetTfcHistoryFailure
 

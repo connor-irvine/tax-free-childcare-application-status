@@ -55,7 +55,7 @@ class GetTfcHistoryConnectorISpec extends WordSpec with Matchers with ComponentS
 
         val response = connector.getClaimsHistory(testNino, testUniqueClaimId).futureValue
 
-        response shouldBe Left(NotFoundErr)
+        response shouldBe Left(GetTfcHistoryError(NotFoundErrCode, "The back end has returned a not found response: *backend reason for not found*"))
       }
     }
   }

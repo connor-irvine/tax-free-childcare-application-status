@@ -115,11 +115,14 @@ class GetTfcHistoryControllerSpec extends WordSpecLike with Matchers with GuiceO
     }
     "GetTfcHistoryService returns a Left not found" should {
       "return NOT_FOUND with the not found json" in {
-        stubGetClaimsHistory(testNino, testUniqueClaimId)(Future.successful(Left(NotFoundErr)))
+        val errMessage = NotFoundErrMessageRegex.replace(".*", "failure reason").filterNot(x => x == '^' | x == '$')
+        val notFoundResponse = GetTfcHistoryError(NotFoundErrCode, errMessage)
+
+        stubGetClaimsHistory(testNino, testUniqueClaimId)(Future.successful(Left(notFoundResponse)))
         val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
         status(result) shouldBe NOT_FOUND
-        jsonBodyOf(result) shouldBe Json.toJson(NotFoundErr)
+        jsonBodyOf(result) shouldBe Json.toJson(notFoundResponse)
       }
     }
     "GetTfcHistoryService returns a Left server error" should {
