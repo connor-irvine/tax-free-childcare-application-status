@@ -17,24 +17,27 @@
 package uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.servicemocks
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import play.api.Application
-import play.api.libs.json.Writes
-import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.AppConfig
+import play.api.http.HeaderNames
+import play.api.http.Status._
+import play.api.libs.json.{JsObject, Json, Writes}
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.WiremockMethods
 
+object AuthStub extends WiremockMethods {
 
-object DesGetTfcHistoryMock extends WiremockMethods {
+  val authority = "/auth/authorise"
 
-  def url(nino: String, id: String) = s"/tax-free-childcare/claims/$nino/$id"
+  private def exceptionHeaders(value: String) = Map(HeaderNames.WWW_AUTHENTICATE -> s"""MDTP detail="$value"""")
 
-  def stubGetTfcHistory[T](nino: String, id: String)(status: Int, body: T)(implicit writes: Writes[T], app: Application): StubMapping = {
-    val appConfig = app.injector.instanceOf[AppConfig]
-    when(method = GET, uri = url(nino, id),
-      headers = Map(
-        "Environment" -> appConfig.desEnvironmentHeader,
-        "Authorization" -> s"Bearer ${appConfig.desAuthorisationToken}"
-      )
-    ).thenReturn(status = status, body = writes.writes(body))
+
+  def stubAuthorised()(implicit writes: Writes[JsObject]): StubMapping = {
+    when(method = POST, uri = authority)
+      .thenReturn(status = OK, body = writes.writes(Json.obj()))
   }
+
+  def stubUnauthorised(): StubMapping = {
+    when(method = POST, uri = authority)
+      .thenReturn(status = UNAUTHORIZED, headers = exceptionHeaders("MissingBearerToken"))
+  }
+
 
 }

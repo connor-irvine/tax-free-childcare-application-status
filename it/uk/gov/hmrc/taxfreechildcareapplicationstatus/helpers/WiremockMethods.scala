@@ -89,5 +89,8 @@ trait WiremockMethods {
     override val wireMockMapping: (UrlPattern) => MappingBuilder = get(_: UrlPattern)
   }
 
+  case object POST extends HTTPMethod {
+    override val wireMockMapping: (UrlPattern) => MappingBuilder = post(_: UrlPattern)
+  }
 
 }

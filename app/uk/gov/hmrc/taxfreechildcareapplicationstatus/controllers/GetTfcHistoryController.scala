@@ -20,8 +20,11 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.libs.json.Json
 import play.api.mvc._
+import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
+import uk.gov.hmrc.auth.core.{AuthProviders, AuthorisedFunctions}
 import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.TfcasAuthConnector
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.httpparsers.GetTfcHistoryParser._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.services.GetTfcHistoryService
@@ -30,9 +33,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GetTfcHistoryController @Inject()(cc: ControllerComponents,
+                                        override val authConnector: TfcasAuthConnector,
                                         getTfcHistoryService: GetTfcHistoryService,
                                         implicit val executionContext: ExecutionContext
-                                       ) extends BackendController(cc) {
+                                       ) extends BackendController(cc) with AuthorisedFunctions {
 
   private def headerMatches(key: String, pattern: String)(implicit request: Request[_]): Boolean =
     request.headers.get(key).exists(_.matches(pattern))
@@ -52,26 +56,28 @@ class GetTfcHistoryController @Inject()(cc: ControllerComponents,
 
   def getTfcHistory(nino: String, uniqueClaimsId: String): Action[AnyContent] =
     Action.async { implicit request =>
-      validateRequest(nino, uniqueClaimsId) {
-        {
-          getTfcHistoryService.getClaimsHistory(nino, uniqueClaimsId) map {
-            case Right(json) => Ok(json)
-            case Left(x@(InvalidNinoErr | InvalidUcidErr | InvalidOriginatorIdErr)) => BadRequest(Json.toJson(x.asInstanceOf[GetTfcHistoryError]))
-            case Left(x@GetTfcHistoryError(NotFoundErrCode, _)) => NotFound(Json.toJson(x))
-            case Left(x@GetTfcHistoryError(BusinessValidationErrCode, _)) => BadRequest(Json.toJson(x))
-            case Left(ServerErrorErr) => InternalServerError(Json.toJson(ServerErrorErr))
-            case Left(ServiceUnavailableErr) => ServiceUnavailable(Json.toJson(ServiceUnavailableErr))
-            case Left(GetTfcHistoryUnexpectedError(status, _)) if status == OK =>
-              // todo logging?
-              throw UnexpectedException
-            case Left(GetTfcHistoryUnexpectedError(status, body)) =>
+      authorised(AuthProviders(PrivilegedApplication)) {
+        validateRequest(nino, uniqueClaimsId) {
+          {
+            getTfcHistoryService.getClaimsHistory(nino, uniqueClaimsId) map {
+              case Right(json) => Ok(json)
+              case Left(x@(InvalidNinoErr | InvalidUcidErr | InvalidOriginatorIdErr)) => BadRequest(Json.toJson(x.asInstanceOf[GetTfcHistoryError]))
+              case Left(x@GetTfcHistoryError(NotFoundErrCode, _)) => NotFound(Json.toJson(x))
+              case Left(x@GetTfcHistoryError(BusinessValidationErrCode, _)) => BadRequest(Json.toJson(x))
+              case Left(ServerErrorErr) => InternalServerError(Json.toJson(ServerErrorErr))
+              case Left(ServiceUnavailableErr) => ServiceUnavailable(Json.toJson(ServiceUnavailableErr))
+              case Left(GetTfcHistoryUnexpectedError(status, _)) if status == OK =>
+                // todo logging?
+                throw UnexpectedException
+              case Left(GetTfcHistoryUnexpectedError(status, body)) =>
+                // todo logging?
+                throw UnexpectedException
+            }
+          } recover {
+            case _ =>
               // todo logging?
               throw UnexpectedException
           }
-        } recover {
-          case _ =>
-            // todo logging?
-            throw UnexpectedException
         }
       }
     }

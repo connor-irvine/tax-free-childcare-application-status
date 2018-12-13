@@ -27,6 +27,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Result}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, InternalServerException}
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.connectors.mocks.MockTfcasAuthConnector
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.TestConstants._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.httpparsers.GetTfcHistoryParser._
@@ -36,13 +37,13 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 class GetTfcHistoryControllerSpec extends WordSpecLike with Matchers with GuiceOneAppPerSuite
-  with MockGetTfcHistoryService {
+  with MockTfcasAuthConnector with MockGetTfcHistoryService {
 
   lazy val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   lazy implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   lazy implicit val materializer: Materializer = app.injector.instanceOf[Materializer]
 
-  object TestController extends GetTfcHistoryController(cc, mockGetTfcHistoryService, ec)
+  object TestController extends GetTfcHistoryController(cc, mockAuthConnector, mockGetTfcHistoryService, ec)
 
   private val defaultTimeOut: Duration = 5 seconds
 
@@ -62,6 +63,11 @@ class GetTfcHistoryControllerSpec extends WordSpecLike with Matchers with GuiceO
 
   implicit val hc = HeaderCarrier()
   val testRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(originatorId -> testOriginatorId, correlationId -> testCorrelationId)
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    mockAuth()
+  }
 
   "GetTfcHistoryController.getTfcHistory with valid a user request" when {
     "GetTfcHistoryService returns a Right" should {
