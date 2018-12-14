@@ -62,7 +62,7 @@ trait ComponentSpecBase extends TestSuite with GuiceOneServerPerSuite with Wirem
     "microservice.services.des.port" -> mockPort
   )
 
-  def buildClient(path: String, headers: Map[String, String]): WSRequest =
+  def buildClientApp(path: String, headers: Map[String, String]): WSRequest =
     ws.url(s"http://localhost:$port/tax-free-childcare-applicant$path")
       .withHttpHeaders(
         headers.map {
@@ -70,6 +70,16 @@ trait ComponentSpecBase extends TestSuite with GuiceOneServerPerSuite with Wirem
         }.toSeq: _*
       ).withFollowRedirects(false)
 
-  def get[T](uri: String, headers: Map[String, String] = Map.empty): WSResponse = buildClient(uri, headers).get.futureValue
+  def get[T](uri: String, headers: Map[String, String] = Map.empty): WSResponse = buildClientApp(uri, headers).get.futureValue
+
+  def buildClientRoot(path: String, headers: Map[String, String]): WSRequest =
+    ws.url(s"http://localhost:$port$path")
+      .withHttpHeaders(
+        headers.map {
+          case (key, value) => (key, value)
+        }.toSeq: _*
+      ).withFollowRedirects(false)
+
+  def rootGet[T](uri: String, headers: Map[String, String] = Map.empty): WSResponse = buildClientRoot(uri, headers).get.futureValue
 
 }
