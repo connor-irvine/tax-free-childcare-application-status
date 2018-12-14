@@ -36,9 +36,11 @@ class AppConfig @Inject()(configuration: ServicesConfig,
   private def getCriticalConfig(key:String) =
     getConfString(key, throw new InternalServerException(s"Cannot find critical config for: $key"))
 
-  def authUrl: String = baseUrl("auth")
+  lazy val authUrl: String = baseUrl("auth")
 
-  def getDesUrl: String = baseUrl("des")
+  lazy val getDesUrl: String = baseUrl("des")
+
+  lazy val serviceLocatorUrl: String = baseUrl("service-locator")
 
   lazy val getTfcHistoryOkResponseSchema: JsValue = getJson("/resources/schemas/GetTfcHistorySuccess.json")
 
