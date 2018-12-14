@@ -1,4 +1,4 @@
 {
   "code": "INVALID_UCID",
-  "reason": "Submission has not passed validation. Invalid Unique Claim Id."
+  "message": "Submission has not passed validation. Invalid Unique Claim Id."
 }

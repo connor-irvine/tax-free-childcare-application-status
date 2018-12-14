@@ -94,22 +94,4 @@ types:
                   notFound:
                     description: Nino not found
                     value: !include examples/404-not-found.json
-          500:
-            body:
-              application/json:
-                type: !include schemas/error-response-schema.json
-                examples:
-                  example-1:
-                    description: DES error
-                    value: !include examples/500-server-error.json
-                  example-2:
-                    description: Server error
-                    value: !include examples/500-unexpected-server-error.json
-          503:
-            body:
-              application/json:
-                type: !include schemas/error-response-schema.json
-                examples:
-                  serviceUnavailable:
-                    description: Service unavailable
-                    value: !include examples/503-service-unavailable.json
+
