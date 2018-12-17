@@ -1,7 +1,7 @@
 
 # tax-free-childcare-application-status
 
-This is a placeholder README.md for a new repository
+This is a placeholder README.md for a new repository.
 
 ### License
 
