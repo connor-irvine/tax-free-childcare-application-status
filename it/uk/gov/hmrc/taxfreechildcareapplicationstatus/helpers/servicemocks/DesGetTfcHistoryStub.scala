@@ -20,8 +20,9 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.Application
 import play.api.libs.json.Writes
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.AppConfig
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController.{correlationId, originatorId}
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.WiremockMethods
-
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.IntegrationTestConstants._
 
 object DesGetTfcHistoryStub extends WiremockMethods {
 
@@ -32,7 +33,9 @@ object DesGetTfcHistoryStub extends WiremockMethods {
     when(method = GET, uri = url(nino, id),
       headers = Map(
         "Environment" -> appConfig.desEnvironmentHeader,
-        "Authorization" -> s"Bearer ${appConfig.desAuthorisationToken}"
+        "Authorization" -> s"Bearer ${appConfig.desAuthorisationToken}",
+        originatorId -> testOriginatorId,
+        correlationId -> testCorrelationId
       )
     ).thenReturn(status = status, body = writes.writes(body))
   }
