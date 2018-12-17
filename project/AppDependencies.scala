@@ -5,6 +5,7 @@ object AppDependencies {
 
   val compile = Seq(
     "uk.gov.hmrc"             %% "bootstrap-play-26"           % "0.32.0",
+    "uk.gov.hmrc"             %% "play-hmrc-api"               % "3.3.0-play-26",
     "com.eclipsesource"       %% "play-json-schema-validator"  % "0.9.4"
   )
 
@@ -15,7 +16,7 @@ object AppDependencies {
     "com.github.tomakehurst"  %  "wiremock"                    % "2.19.0"                % "test, it",
     "org.scalatestplus.play"  %% "scalatestplus-play"          % "3.1.2"                 % "test, it",
     "uk.gov.hmrc"             %% "domain"                      % "5.2.0"                 % "test, it",
-    "org.mockito"             % "mockito-core"                 % "2.23.4"                % "test, it"
+    "org.mockito"             %  "mockito-core"                % "2.23.4"                % "test, it"
   )
 
   // Fixes a transitive dependency clash between wiremock and scalatestplus-play
