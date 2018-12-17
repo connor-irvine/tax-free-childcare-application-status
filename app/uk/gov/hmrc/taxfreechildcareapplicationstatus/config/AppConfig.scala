@@ -19,21 +19,23 @@ package uk.gov.hmrc.taxfreechildcareapplicationstatus.config
 import java.io.FileNotFoundException
 import javax.inject.{Inject, Singleton}
 
-import play.api.Environment
+import play.api.{Configuration, Environment}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.models.api.APIAccess
 
 @Singleton
-class AppConfig @Inject()(configuration: ServicesConfig,
+class AppConfig @Inject()(configuration: Configuration,
+                          serviceConfig: ServicesConfig,
                           env: Environment) {
 
-  import configuration._
+  import serviceConfig._
 
   private def getJson(file: String): JsValue =
     Json.parse(env.resourceAsStream(file).getOrElse(throw new FileNotFoundException(s"cannot find: $file")))
 
-  private def getCriticalConfig(key:String) =
+  private def getCriticalConfig(key: String) =
     getConfString(key, throw new InternalServerException(s"Cannot find critical config for: $key"))
 
   lazy val authUrl: String = baseUrl("auth")
@@ -42,12 +44,20 @@ class AppConfig @Inject()(configuration: ServicesConfig,
 
   lazy val serviceLocatorUrl: String = baseUrl("service-locator")
 
-  lazy val getTfcHistoryOkResponseSchema: JsValue = getJson("/resources/schemas/GetTfcHistorySuccess.json")
+  lazy val getTfcHistoryOkResponseSchema: JsValue = getJson("/resources/schemas/success-response-schema.json")
 
-  lazy val getTfcHistoryFailureResponseSchema: JsValue = getJson("/resources/schemas/GetTfcHistoryFailure.json")
+  lazy val getTfcHistoryFailureResponseSchema: JsValue = getJson("/resources/schemas/error-response-schema.json")
 
-  lazy val desEnvironmentHeader :String = getCriticalConfig("des.environment")
+  lazy val desEnvironmentHeader: String = getCriticalConfig("des.environment")
 
-  lazy val desAuthorisationToken :String = getCriticalConfig("des.authorisation-token")
+  lazy val desAuthorisationToken: String = getCriticalConfig("des.authorisation-token")
+
+  private val apiContextConfigKey = "api.context"
+  private val apiAccessTypeKey = "api.access.type"
+  private val apiAccessWhitelistKey = "api.access.whitelistedApplicationIds"
+
+  lazy val apiContext: String = serviceConfig.getString(apiContextConfigKey)
+  lazy val apiAccess: APIAccess = APIAccess(serviceConfig.getString(apiAccessTypeKey),
+    configuration.get[Option[Seq[String]]](apiAccessWhitelistKey))
 
 }

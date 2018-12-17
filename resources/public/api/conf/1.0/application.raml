@@ -1,0 +1,115 @@
+#%RAML 1.0
+---
+
+title: Tax Free Childcare Application Status
+version: 1.0
+protocols: [ HTTPS ]
+baseUri: https://api.service.hmrc.gov.uk/
+mediaType: [ application/json, application/hal+json ]
+
+documentation:
+ - title: Overview
+   content: !include documentation/overview.md
+ - title: Versioning
+   content: !include https://developer.service.hmrc.gov.uk/api-documentation/assets/common/docs/versioning.md
+ - title: Errors
+   content: !include https://developer.service.hmrc.gov.uk/api-documentation/assets/common/docs/errors.md
+ - title: Testing
+   content: !include documentation/testing.md
+
+uses:
+  sec: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/securitySchemes.raml
+  headers: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/headers.raml
+  annotations: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/annotations.raml
+  types: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/types.raml
+
+traits:
+  originatorIdHeader:
+    headers:
+      Originator-Id:
+        description: Consumer Id
+        type: string
+        required: true
+  correlationIdHeader:
+      headers:
+        CorrelationId:
+          description: Identifier of the transaction (UUID v4)
+          type: string
+          required: true
+          example: "^[A-Za-z0-9\\-]{36}$"
+
+types:
+  nino:
+    pattern: "^((?!(BG|GB|KN|NK|NT|TN|ZZ)|(D|F|I|Q|U|V)[A-Z]|[A-Z](D|F|I|O|Q|U|V))[A-Z]{2})[0-9]{6}[A-D]$"
+  uniqueClaimId:
+    pattern: "^\\d{11}$"
+
+/tax-free-childcare/claims:
+  /{nino}:
+    uriParameters:
+      nino:
+        description: The national insurance number of the taxpayer
+        type: nino
+    /{uniqueClaimId}:
+      uriParameters:
+        uniqueClaimId:
+          type: uniqueClaimId
+          description: Unique identification number for the applicaiton
+      get:
+        displayName: Tax Free Childcare Application Status
+        description: !include documentation/overview.md
+        is: [headers.acceptHeader, originatorIdHeader, correlationIdHeader]
+        (annotations.scope): "read:tax-free-childcare-application-status"
+        securedBy: [ sec.oauth_2_0: { scopes: [ "read:tax-free-childcare-application-status" ] } ]
+        responses:
+          200:
+            body:
+              application/json:
+                type: !include schemas/success-response-schema.json
+                examples:
+                  example-1:
+                    value: !include examples/200-success.json
+          400:
+            body:
+              application/json:
+                type: !include schemas/error-response-schema.json
+                examples:
+                  invalidNino:
+                    description: Nino has not passed validation
+                    value: !include examples/400-invalid-nino.json
+                  invalidUcid:
+                    description: Unique claim ID has not passed validation
+                    value: !include examples/400-invalid-ucid.json
+                  invalidOriginatorId:
+                    description: Originator ID has not passed validation
+                    value: !include examples/400-invalid-originator-id.json
+                  businessValidationError:
+                    description: A business validation error has been returned
+                    value: !include examples/400-business-validation-error.json
+          404:
+            body:
+              application/json:
+                type: !include schemas/error-response-schema.json
+                examples:
+                  notFound:
+                    description: Nino not found
+                    value: !include examples/404-not-found.json
+          500:
+            body:
+              application/json:
+                type: !include schemas/error-response-schema.json
+                examples:
+                  example-1:
+                    description: DES error
+                    value: !include examples/500-server-error.json
+                  example-2:
+                    description: Server error
+                    value: !include examples/500-unexpected-server-error.json
+          503:
+            body:
+              application/json:
+                type: !include schemas/error-response-schema.json
+                examples:
+                  serviceUnavailable:
+                    description: Service unavailable
+                    value: !include examples/503-service-unavailable.json
