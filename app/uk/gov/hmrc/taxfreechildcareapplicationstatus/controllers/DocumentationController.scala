@@ -31,14 +31,11 @@ class DocumentationController @Inject()(appConfig: AppConfig,
                                         errorHandler: HttpErrorHandler)
   extends uk.gov.hmrc.api.controllers.DocumentationController(cc, assets, errorHandler) {
 
-  override def documentation(version: String, endpointName: String): Action[AnyContent] =
-    super.documentation(version, endpointName)
+  override def conf(version: String, endpointName: String): Action[AnyContent] =
+   assets.at(s"/public/api/conf/$version", endpointName)
 
   override def definition(): Action[AnyContent] = Action {
     Ok(txt.definition(appConfig.apiAccess, appConfig.apiContext))
   }
-
-  override def conf(version: String, file: String): Action[AnyContent] =
-    super.conf(version, file)
 
 }

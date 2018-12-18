@@ -32,8 +32,8 @@ class GetTfcHistoryControllerISpec extends WordSpec with Matchers with Component
 
   implicit val hc = HeaderCarrier()
 
-  lazy val testOkResponse: JsValue = Json.parse(Source.fromFile("resources/public/api/conf/1.0/examples/200-success.json").getLines.mkString)
-  lazy val test404Response: JsValue = Json.parse(Source.fromFile("resources/public/api/conf/1.0/examples/404-not-found.json").getLines.mkString)
+  lazy val testOkResponse: JsValue = Json.parse(Source.fromFile("public/api/conf/1.0/examples/200-success.json").getLines.mkString)
+  lazy val test404Response: JsValue = Json.parse(Source.fromFile("public/api/conf/1.0/examples/404-not-found.json").getLines.mkString)
 
   "GET /claims/:nino/:uniqueClaimsId" when {
     "AUTH returns UNAUTHORIZED " should {

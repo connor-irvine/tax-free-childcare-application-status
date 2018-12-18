@@ -34,7 +34,7 @@ class GetTfcHistoryParserSpec extends WordSpec with Matchers with GuiceOneAppPer
 
   import parser._
 
-  lazy val testOkResponse: JsValue = Json.parse(Source.fromFile("resources/public/api/conf/1.0/examples/200-success.json").getLines.mkString)
+  lazy val testOkResponse: JsValue = Json.parse(Source.fromFile("public/api/conf/1.0/examples/200-success.json").getLines.mkString)
 
   "GetTfcHistoryRequestHttpReads" when {
     "read" should {
