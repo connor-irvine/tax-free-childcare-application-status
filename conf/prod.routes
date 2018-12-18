@@ -4,3 +4,4 @@
 ->         /                                             definition.Routes
 
 GET        /admin/metrics                                com.kenshoo.play.metrics.MetricsController.metrics
+GET        /assets/*file                                 controllers.Assets.at(path="/public", file)
