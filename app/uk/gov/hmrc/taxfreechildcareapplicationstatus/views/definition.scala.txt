@@ -14,6 +14,9 @@
     "name": "Tax Free Childcare Application Status",
     "description": "Provides real time income information for an individual",
     "context": "@apiContext",
+    "categories": [
+        "PRIVATE_GOVERNMENT"
+     ],
     "versions": [
       {
         "version": "1.0",
