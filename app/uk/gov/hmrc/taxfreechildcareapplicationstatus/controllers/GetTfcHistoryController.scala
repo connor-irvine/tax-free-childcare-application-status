@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
 import uk.gov.hmrc.auth.core.{AuthProviders, AuthorisedFunctions}
-import uk.gov.hmrc.http.InternalServerException
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.TfcasAuthConnector
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController._
@@ -56,10 +56,18 @@ class GetTfcHistoryController @Inject()(cc: ControllerComponents,
 
   def getTfcHistory(nino: String, uniqueClaimsId: String): Action[AnyContent] =
     Action.async { implicit request =>
+      val updatedHc = implicitly[HeaderCarrier].withExtraHeaders(
+        Map[String, Option[String]](
+          originatorId -> request.headers.get(originatorId),
+          correlationId -> request.headers.get(correlationId)
+        ).collect {
+          case (k, Some(v)) => (k, v)
+        }.toSeq: _*
+      )
       authorised(AuthProviders(PrivilegedApplication)) {
         validateRequest(nino, uniqueClaimsId) {
           {
-            getTfcHistoryService.getClaimsHistory(nino, uniqueClaimsId) map {
+            getTfcHistoryService.getClaimsHistory(nino, uniqueClaimsId)(updatedHc) map {
               case Right(json) => Ok(json)
               case Left(x@(InvalidNinoErr | InvalidUcidErr | InvalidOriginatorIdErr)) => BadRequest(Json.toJson(x.asInstanceOf[GetTfcHistoryError]))
               case Left(x@GetTfcHistoryError(NotFoundErrCode, _)) => NotFound(Json.toJson(x))

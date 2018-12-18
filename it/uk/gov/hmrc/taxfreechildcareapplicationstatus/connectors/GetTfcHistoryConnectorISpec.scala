@@ -20,6 +20,7 @@ import org.scalatest.{Matchers, WordSpec}
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController.{correlationId, originatorId}
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.ComponentSpecBase
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.IntegrationTestConstants._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.servicemocks.DesGetTfcHistoryStub._
@@ -27,10 +28,12 @@ import uk.gov.hmrc.taxfreechildcareapplicationstatus.httpparsers.GetTfcHistoryPa
 
 import scala.io.Source
 
-
 class GetTfcHistoryConnectorISpec extends WordSpec with Matchers with ComponentSpecBase {
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(
+    originatorId -> testOriginatorId,
+    correlationId -> testCorrelationId
+  )
 
   lazy val connector: GetTfcHistoryConnector = app.injector.instanceOf[GetTfcHistoryConnector]
 
