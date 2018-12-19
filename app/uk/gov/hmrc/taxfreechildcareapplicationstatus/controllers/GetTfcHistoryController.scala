@@ -22,11 +22,12 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
 import uk.gov.hmrc.auth.core.{AuthProviders, AuthorisedFunctions}
-import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.TfcasAuthConnector
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.httpparsers.GetTfcHistoryParser._
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.models.ApiPlatformErrorResponse._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.services.GetTfcHistoryService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,9 +49,9 @@ class GetTfcHistoryController @Inject()(cc: ControllerComponents,
       headerMatches(correlationId, correlationIdRegex)
     ) match {
       case (true, true, true, true) => action
-      case (false, _, _, _) => Future.successful(BadRequest(Json.toJson(InvalidNinoErr)))
-      case (_, false, _, _) => Future.successful(BadRequest(Json.toJson(InvalidUcidErr)))
-      case (_, _, false, _) => Future.successful(BadRequest(Json.toJson(InvalidOriginatorIdErr)))
+      case (false, _, _, _) => Future.successful(BadRequest(Json.toJson(InvalidNinoResponse)))
+      case (_, false, _, _) => Future.successful(BadRequest(Json.toJson(InvalidUcidResponse)))
+      case (_, _, false, _) => Future.successful(BadRequest(Json.toJson(InvalidOriginatorIdResponse)))
       case (_, _, _, false) => Future.successful(BadRequest) // TODO confirm error json once it's defined
     }
 
@@ -69,22 +70,24 @@ class GetTfcHistoryController @Inject()(cc: ControllerComponents,
           {
             getTfcHistoryService.getClaimsHistory(nino, uniqueClaimsId)(updatedHc) map {
               case Right(json) => Ok(json)
-              case Left(x@(InvalidNinoErr | InvalidUcidErr | InvalidOriginatorIdErr)) => BadRequest(Json.toJson(x.asInstanceOf[GetTfcHistoryError]))
-              case Left(x@GetTfcHistoryError(NotFoundErrCode, _)) => NotFound(Json.toJson(x))
-              case Left(x@GetTfcHistoryError(BusinessValidationErrCode, _)) => BadRequest(Json.toJson(x))
-              case Left(ServerErrorErr) => InternalServerError(Json.toJson(ServerErrorErr))
-              case Left(ServiceUnavailableErr) => ServiceUnavailable(Json.toJson(ServiceUnavailableErr))
+              case Left(InvalidNinoErr) => BadRequest(Json.toJson(InvalidNinoResponse))
+              case Left(InvalidUcidErr) => BadRequest(Json.toJson(InvalidUcidResponse))
+              case Left(InvalidOriginatorIdErr) => BadRequest(Json.toJson(InvalidOriginatorIdResponse))
+              case Left(BusinessValidationErr(message)) => BadRequest(Json.toJson(BusinessValidationResponse(message)))
+              case Left(NotFoundErr(message)) => NotFound(Json.toJson(NotFoundResponse(message)))
+              case Left(ServerErrorErr) => InternalServerError(Json.toJson(InternalServerErrorResponse))
+              case Left(ServiceUnavailableErr) => ServiceUnavailable(Json.toJson(ServiceUnavailableResponse))
               case Left(GetTfcHistoryUnexpectedError(status, _)) if status == OK =>
-                // todo logging?
-                throw UnexpectedException
+                // todo logging? n.b. if we do log then we must not log the body as it may contain sensitive info
+                InternalServerError(Json.toJson(UnexpectedServerErrorResponse))
               case Left(GetTfcHistoryUnexpectedError(status, body)) =>
                 // todo logging?
-                throw UnexpectedException
+                InternalServerError(Json.toJson(UnexpectedServerErrorResponse))
             }
           } recover {
             case _ =>
               // todo logging?
-              throw UnexpectedException
+              InternalServerError(Json.toJson(UnexpectedServerErrorResponse))
           }
         }
       }
@@ -101,7 +104,5 @@ object GetTfcHistoryController {
   val ucidRegex = "^\\d{11}$"
   val originatorRegex = "^(.*)$"
   val correlationIdRegex = "^[A-Za-z0-9\\-]{36}$"
-
-  val UnexpectedException = new InternalServerException("Something unexpected went wrong")
 
 }

@@ -37,13 +37,11 @@
             "INVALID_UCID",
             "INVALID_ORIGINATOR_ID",
             "BUSINESS_VALIDATION",
-            "NOT_FOUND",
-            "SERVER_ERROR",
-            "SERVICE_UNAVAILABLE"
+            "NOT_FOUND"
           ],
           "description": "Keys for all the errors returned"
         },
-        "reason": {
+        "message": {
           "type": "string",
           "minLength": 1,
           "maxLength": 160,
@@ -52,7 +50,7 @@
       },
       "required": [
         "code",
-        "reason"
+        "message"
       ],
       "additionalProperties": false
     }

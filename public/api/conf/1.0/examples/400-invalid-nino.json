@@ -1,4 +1,4 @@
 {
   "code": "INVALID_NINO",
-  "reason": "Submission has not passed validation. Invalid nino."
+  "message": "Submission has not passed validation. Invalid nino."
 }

@@ -22,6 +22,7 @@ import com.eclipsesource.schema._
 import play.api.http.Status._
 import play.api.libs.json.{JsSuccess, JsValue, Json, OFormat}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.TfcasConstants._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.AppConfig
 
 @Singleton
@@ -47,25 +48,25 @@ class GetTfcHistoryParser @Inject()(appConfig: AppConfig) {
           Right(jsonBody)
         case BAD_REQUEST if isValidFailureResponse =>
           Left(jsonBody.validate[GetTfcHistoryError] match {
-            case JsSuccess(InvalidNinoErr, _) => InvalidNinoErr
-            case JsSuccess(InvalidUcidErr, _) => InvalidUcidErr
-            case JsSuccess(InvalidOriginatorIdErr, _) => InvalidOriginatorIdErr
-            case JsSuccess(response@GetTfcHistoryError(BusinessValidationErrCode, errMsg), _) if errMsg.matches(BusinessValidationErrMessageRegex) => response
+            case JsSuccess(GetTfcHistoryError(InvalidNinoHeader, InvalidNinoMessage), _) => InvalidNinoErr
+            case JsSuccess(GetTfcHistoryError(InvalidUcidHeader, InvalidUcidMessage), _) => InvalidUcidErr
+            case JsSuccess(GetTfcHistoryError(InvalidOriginatorIdHeader, InvalidOriginatorIdMessage), _) => InvalidOriginatorIdErr
+            case JsSuccess(GetTfcHistoryError(BusinessValidationHeader, errMsg), _) if errMsg.matches(BusinessValidationErrMessageRegex) => BusinessValidationErr(errMsg)
             case _ => GetTfcHistoryUnexpectedError(BAD_REQUEST, response.body)
           })
         case NOT_FOUND if isValidFailureResponse =>
           Left(jsonBody.validate[GetTfcHistoryError] match {
-            case JsSuccess(response@GetTfcHistoryError(NotFoundErrCode, errMsg), _) if errMsg.matches(NotFoundErrMessageRegex) => response
+            case JsSuccess(response@GetTfcHistoryError(NotFoundHeader, errMsg), _) if errMsg.matches(NotFoundErrMessageRegex) => NotFoundErr(errMsg)
             case _ => GetTfcHistoryUnexpectedError(NOT_FOUND, response.body)
           })
         case INTERNAL_SERVER_ERROR if isValidFailureResponse =>
           Left(jsonBody.validate[GetTfcHistoryError] match {
-            case JsSuccess(ServerErrorErr, _) => ServerErrorErr
+            case JsSuccess(GetTfcHistoryError(InternalServerErrorDESHeader, InternalServerErrorMessage), _) => ServerErrorErr
             case _ => GetTfcHistoryUnexpectedError(INTERNAL_SERVER_ERROR, response.body)
           })
         case SERVICE_UNAVAILABLE if isValidFailureResponse =>
           Left(jsonBody.validate[GetTfcHistoryError] match {
-            case JsSuccess(ServiceUnavailableErr, _) => ServiceUnavailableErr
+            case JsSuccess(GetTfcHistoryError(ServiceUnavailableDESHeader, ServiceUnavailableMessage), _) => ServiceUnavailableErr
             case _ => GetTfcHistoryUnexpectedError(SERVICE_UNAVAILABLE, response.body)
           })
         case status =>
@@ -91,16 +92,22 @@ object GetTfcHistoryParser {
     implicit val format: OFormat[GetTfcHistoryError] = Json.format[GetTfcHistoryError]
   }
 
-  val InvalidNinoErr = GetTfcHistoryError("INVALID_NINO", "Submission has not passed validation. Invalid nino.")
-  val InvalidUcidErr = GetTfcHistoryError("INVALID_UCID", "Submission has not passed validation. Invalid Unique Claim Id.")
-  val InvalidOriginatorIdErr = GetTfcHistoryError("INVALID_ORIGINATOR_ID", "Submission has not passed validation. Invalid header Originator-Id.")
-  val ServerErrorErr = GetTfcHistoryError("SERVER_ERROR", "DES is currently experiencing problems that require live service intervention.")
-  val ServiceUnavailableErr = GetTfcHistoryError("SERVICE_UNAVAILABLE", "Dependent systems are currently not responding")
+  case object InvalidNinoErr extends GetTfcHistoryFailure
 
-  val BusinessValidationErrCode = "BUSINESS_VALIDATION"
+  case object InvalidUcidErr extends GetTfcHistoryFailure
+
+  case object InvalidOriginatorIdErr extends GetTfcHistoryFailure
+
+  case object ServerErrorErr extends GetTfcHistoryFailure
+
+  case object ServiceUnavailableErr extends GetTfcHistoryFailure
+
+  case class BusinessValidationErr(message: String) extends GetTfcHistoryFailure
+
+  case class NotFoundErr(message: String) extends GetTfcHistoryFailure
+
   val BusinessValidationErrMessageRegex = "^The back end has returned a business validation error:.*$"
 
-  val NotFoundErrCode = "NOT_FOUND"
   val NotFoundErrMessageRegex = "^The back end has returned a not found response:.*$"
 
   case class GetTfcHistoryUnexpectedError(status: Int, body: String) extends GetTfcHistoryFailure

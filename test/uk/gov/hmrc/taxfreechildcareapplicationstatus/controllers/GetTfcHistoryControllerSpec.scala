@@ -26,11 +26,12 @@ import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Result}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, InternalServerException}
+import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier}
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.connectors.mocks.MockTfcasAuthConnector
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.TestConstants._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.httpparsers.GetTfcHistoryParser._
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.models.ApiPlatformErrorResponse._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.services.mocks.MockGetTfcHistoryService
 
 import scala.concurrent.duration._
@@ -86,7 +87,7 @@ class GetTfcHistoryControllerSpec extends WordSpecLike with Matchers with GuiceO
         val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
         status(result) shouldBe BAD_REQUEST
-        jsonBodyOf(result) shouldBe Json.toJson(InvalidNinoErr)
+        jsonBodyOf(result) shouldBe Json.toJson(InvalidNinoResponse)
       }
     }
     "GetTfcHistoryService returns a Left invalid UCID" should {
@@ -95,7 +96,7 @@ class GetTfcHistoryControllerSpec extends WordSpecLike with Matchers with GuiceO
         val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
         status(result) shouldBe BAD_REQUEST
-        jsonBodyOf(result) shouldBe Json.toJson(InvalidUcidErr)
+        jsonBodyOf(result) shouldBe Json.toJson(InvalidUcidResponse)
       }
     }
     "GetTfcHistoryService returns a Left invalid originator Id" should {
@@ -104,40 +105,40 @@ class GetTfcHistoryControllerSpec extends WordSpecLike with Matchers with GuiceO
         val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
         status(result) shouldBe BAD_REQUEST
-        jsonBodyOf(result) shouldBe Json.toJson(InvalidOriginatorIdErr)
+        jsonBodyOf(result) shouldBe Json.toJson(InvalidOriginatorIdResponse)
       }
     }
     "GetTfcHistoryService returns a Left business validation" should {
       "return BAD_REQUEST with the business validation json" in {
         val errMessage = BusinessValidationErrMessageRegex.replace(".*", "failure reason").filterNot(x => x == '^' | x == '$')
-        val businessValidationResponse = GetTfcHistoryError(BusinessValidationErrCode, errMessage)
+        val businessValidationResponse = BusinessValidationErr(errMessage)
 
         stubGetClaimsHistory(testNino, testUniqueClaimId)(Future.successful(Left(businessValidationResponse)))
         val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
         status(result) shouldBe BAD_REQUEST
-        jsonBodyOf(result) shouldBe Json.toJson(businessValidationResponse)
+        jsonBodyOf(result) shouldBe Json.toJson(BusinessValidationResponse(errMessage))
       }
     }
     "GetTfcHistoryService returns a Left not found" should {
       "return NOT_FOUND with the not found json" in {
         val errMessage = NotFoundErrMessageRegex.replace(".*", "failure reason").filterNot(x => x == '^' | x == '$')
-        val notFoundResponse = GetTfcHistoryError(NotFoundErrCode, errMessage)
+        val notFoundResponse = NotFoundErr(errMessage)
 
         stubGetClaimsHistory(testNino, testUniqueClaimId)(Future.successful(Left(notFoundResponse)))
         val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
         status(result) shouldBe NOT_FOUND
-        jsonBodyOf(result) shouldBe Json.toJson(notFoundResponse)
+        jsonBodyOf(result) shouldBe Json.toJson(NotFoundResponse(errMessage))
       }
     }
     "GetTfcHistoryService returns a Left server error" should {
-      "return INTERNAL_SERVER_ERROR with the server error json" in {
+      "return INTERNAL_SERVER_ERROR with the internal server error json" in {
         stubGetClaimsHistory(testNino, testUniqueClaimId)(Future.successful(Left(ServerErrorErr)))
         val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
-        jsonBodyOf(result) shouldBe Json.toJson(ServerErrorErr)
+        jsonBodyOf(result) shouldBe Json.toJson(InternalServerErrorResponse)
       }
     }
     "GetTfcHistoryService returns a Left service unavailable" should {
@@ -146,45 +147,36 @@ class GetTfcHistoryControllerSpec extends WordSpecLike with Matchers with GuiceO
         val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
         status(result) shouldBe SERVICE_UNAVAILABLE
-        jsonBodyOf(result) shouldBe Json.toJson(ServiceUnavailableErr)
+        jsonBodyOf(result) shouldBe Json.toJson(ServiceUnavailableResponse)
       }
     }
     "GetTfcHistoryService returns a Left GetTfcHistoryUnexpectedError" when {
       "the status is OK" should {
-        "throw InternalServerException with the exception message" in {
+        "return 500 with the UnexpectedServerErrorResponse" in {
           stubGetClaimsHistory(testNino, testUniqueClaimId)(Future.successful(Left(GetTfcHistoryUnexpectedError(OK, ""))))
           val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
-          val ex = intercept[InternalServerException] {
-            await(result)
-          }
-
-          ex shouldBe UnexpectedException
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          jsonBodyOf(result) shouldBe Json.toJson(UnexpectedServerErrorResponse)
         }
       }
       "the status is not OK" should {
-        "throw InternalServerException with the exception message" in {
+        "return 500 with the UnexpectedServerErrorResponse" in {
           stubGetClaimsHistory(testNino, testUniqueClaimId)(Future.successful(Left(GetTfcHistoryUnexpectedError(INTERNAL_SERVER_ERROR, ""))))
           val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
-          val ex = intercept[InternalServerException] {
-            await(result)
-          }
-
-          ex shouldBe UnexpectedException
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          jsonBodyOf(result) shouldBe Json.toJson(UnexpectedServerErrorResponse)
         }
       }
     }
     "GetTfcHistoryService thrown and exception" when {
-      "throw InternalServerException with the exception message" in {
+      "return 500 with the exception message" in {
         stubGetClaimsHistory(testNino, testUniqueClaimId)(Future.failed(new BadGatewayException("")))
         val result = TestController.getTfcHistory(testNino, testUniqueClaimId)(testRequest)
 
-        val ex = intercept[InternalServerException] {
-          await(result)
-        }
-
-        ex shouldBe UnexpectedException
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        jsonBodyOf(result) shouldBe Json.toJson(UnexpectedServerErrorResponse)
       }
     }
   }
@@ -197,7 +189,7 @@ class GetTfcHistoryControllerSpec extends WordSpecLike with Matchers with GuiceO
         val result = TestController.getTfcHistory(invalidNino, testUniqueClaimId)(testRequest)
 
         status(result) shouldBe BAD_REQUEST
-        jsonBodyOf(result) shouldBe Json.toJson(InvalidNinoErr)
+        jsonBodyOf(result) shouldBe Json.toJson(InvalidNinoResponse)
       }
     }
     "UCID is invalid" should {
@@ -207,7 +199,7 @@ class GetTfcHistoryControllerSpec extends WordSpecLike with Matchers with GuiceO
         val result = TestController.getTfcHistory(testNino, invalidUCID)(testRequest)
 
         status(result) shouldBe BAD_REQUEST
-        jsonBodyOf(result) shouldBe Json.toJson(InvalidUcidErr)
+        jsonBodyOf(result) shouldBe Json.toJson(InvalidUcidResponse)
       }
     }
     "Correlation id is invalid" when {

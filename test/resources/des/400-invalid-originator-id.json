@@ -1,0 +1,4 @@
+{
+  "code": "INVALID_ORIGINATOR_ID",
+  "reason": "Submission has not passed validation. Invalid header Originator-Id."
+}

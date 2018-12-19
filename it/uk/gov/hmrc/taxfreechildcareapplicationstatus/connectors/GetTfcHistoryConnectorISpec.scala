@@ -37,28 +37,28 @@ class GetTfcHistoryConnectorISpec extends WordSpec with Matchers with ComponentS
 
   lazy val connector: GetTfcHistoryConnector = app.injector.instanceOf[GetTfcHistoryConnector]
 
-  lazy val testOkResponse: JsValue = Json.parse(Source.fromFile("public/api/conf/1.0/examples/200-success.json").getLines.mkString)
-  lazy val test404Response: JsValue = Json.parse(Source.fromFile("public/api/conf/1.0/examples/404-not-found.json").getLines.mkString)
+  lazy val testOkDesResponse: JsValue = Json.parse(Source.fromFile("test/resources/des/200-success.json").getLines.mkString)
+  lazy val test404DesResponse: JsValue = Json.parse(Source.fromFile("test/resources/des/404-not-found.json").getLines.mkString)
 
 
   "GetTfcHistoryConnector" when {
     "Des returns OK" should {
       "return the json" in {
-        stubGetTfcHistory(testNino, testUniqueClaimId)(OK, testOkResponse)
+        stubGetTfcHistory(testNino, testUniqueClaimId)(OK, testOkDesResponse)
 
         val response = connector.getClaimsHistory(testNino, testUniqueClaimId).futureValue
 
-        response shouldBe Right(testOkResponse)
+        response shouldBe Right(testOkDesResponse)
       }
     }
 
     "Des returns NOT_FOUND" should {
       "return error message" in {
-        stubGetTfcHistory(testNino, testUniqueClaimId)(NOT_FOUND, test404Response)
+        stubGetTfcHistory(testNino, testUniqueClaimId)(NOT_FOUND, test404DesResponse)
 
         val response = connector.getClaimsHistory(testNino, testUniqueClaimId).futureValue
 
-        response shouldBe Left(GetTfcHistoryError(NotFoundErrCode, "The back end has returned a not found response: *backend reason for not found*"))
+        response shouldBe Left(NotFoundErr("The back end has returned a not found response: *backend reason for not found*"))
       }
     }
   }

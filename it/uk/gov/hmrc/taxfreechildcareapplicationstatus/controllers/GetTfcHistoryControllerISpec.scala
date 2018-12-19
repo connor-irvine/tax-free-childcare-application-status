@@ -20,20 +20,22 @@ import org.scalatest.{Matchers, WordSpec}
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.TfcasConstants.InternalServerErrorAPIHeader
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.IntegrationTestConstants._
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.servicemocks.AuthStub._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.servicemocks.DesGetTfcHistoryStub._
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.{ComponentSpecBase, CustomMatchers}
 
 import scala.io.Source
-import GetTfcHistoryController._
-import uk.gov.hmrc.taxfreechildcareapplicationstatus.helpers.servicemocks.AuthStub._
 
 class GetTfcHistoryControllerISpec extends WordSpec with Matchers with ComponentSpecBase with CustomMatchers {
 
   implicit val hc = HeaderCarrier()
 
   lazy val testOkResponse: JsValue = Json.parse(Source.fromFile("public/api/conf/1.0/examples/200-success.json").getLines.mkString)
-  lazy val test404Response: JsValue = Json.parse(Source.fromFile("public/api/conf/1.0/examples/404-not-found.json").getLines.mkString)
+  lazy val test404DesResponse: JsValue = Json.parse(Source.fromFile("test/resources/des/404-not-found.json").getLines.mkString)
+  lazy val test404ApiResponse: JsValue = Json.parse(Source.fromFile("public/api/conf/1.0/examples/404-not-found.json").getLines.mkString)
 
   "GET /claims/:nino/:uniqueClaimsId" when {
     "AUTH returns UNAUTHORIZED " should {
@@ -76,7 +78,7 @@ class GetTfcHistoryControllerISpec extends WordSpec with Matchers with Component
     "DES returns NOT_FOUND and with a valid response" should {
       "return NOT_FOUND" in {
         stubAuthorised()
-        stubGetTfcHistory(testNino, testUniqueClaimId)(NOT_FOUND, test404Response)
+        stubGetTfcHistory(testNino, testUniqueClaimId)(NOT_FOUND, test404DesResponse)
 
         val result = get(
           uri = s"/claims/$testNino/$testUniqueClaimId",
@@ -88,7 +90,30 @@ class GetTfcHistoryControllerISpec extends WordSpec with Matchers with Component
 
         result should have(
           httpStatus(NOT_FOUND),
-          jsonBodyAs(test404Response)
+          jsonBodyAs(test404ApiResponse)
+        )
+      }
+    }
+
+    "DES returns an invalid response" should {
+      "return INTERNAL_SERVER_ERROR" in {
+        stubAuthorised()
+        stubGetTfcHistory(testNino, testUniqueClaimId)(NOT_FOUND, "")
+
+        val result = get(
+          uri = s"/claims/$testNino/$testUniqueClaimId",
+          headers = Map(
+            originatorId -> testOriginatorId,
+            correlationId -> testCorrelationId
+          )
+        )
+
+        result should have(
+          httpStatus(INTERNAL_SERVER_ERROR),
+          jsonBodyAs(Json.obj(
+            "code" -> InternalServerErrorAPIHeader,
+            "message" -> "Something unexpected went wrong"
+          ))
         )
       }
     }
