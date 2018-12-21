@@ -17,7 +17,6 @@
 package uk.gov.hmrc.taxfreechildcareapplicationstatus
 
 import com.google.inject.AbstractModule
-import uk.gov.hmrc.api.connector.{ApiServiceLocatorConnector, ServiceLocatorConnector}
 import uk.gov.hmrc.http.CorePost
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
@@ -26,7 +25,6 @@ class Module extends AbstractModule {
 
   override def configure(): Unit = {
     bind(classOf[CorePost]).to(classOf[DefaultHttpClient])
-    bind(classOf[ServiceLocatorConnector]).to(classOf[ApiServiceLocatorConnector])
     bind(classOf[ApplicationRegistration]).asEagerSingleton()
   }
 

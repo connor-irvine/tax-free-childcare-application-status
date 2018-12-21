@@ -32,6 +32,10 @@ class AppConfig @Inject()(configuration: Configuration,
 
   import serviceConfig._
 
+  lazy val appNameForServiceLocator: String = getString("appNameForServiceLocator")
+
+  lazy val appUrl: String = getString("appUrl")
+
   private def getJson(file: String): JsValue =
     Json.parse(env.resourceAsStream(file).getOrElse(throw new FileNotFoundException(s"cannot find: $file")))
 

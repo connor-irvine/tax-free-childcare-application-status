@@ -19,13 +19,13 @@ package uk.gov.hmrc.taxfreechildcareapplicationstatus.connectors.mocks
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Suite}
-import uk.gov.hmrc.api.connector.ServiceLocatorConnector
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.connectors.TfcasServiceLocator
 
 
 trait MockServiceLocatorConnector extends MockitoSugar with BeforeAndAfterEach {
   this: Suite =>
 
-  val mockServiceLocatorConnector: ServiceLocatorConnector = mock[ServiceLocatorConnector]
+  val mockServiceLocatorConnector: TfcasServiceLocator = mock[TfcasServiceLocator]
 
   override def beforeEach(): Unit = {
     super.beforeEach()

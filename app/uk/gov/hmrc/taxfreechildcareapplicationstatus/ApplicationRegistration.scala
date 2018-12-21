@@ -19,14 +19,14 @@ package uk.gov.hmrc.taxfreechildcareapplicationstatus
 import javax.inject.{Inject, Singleton}
 
 import play.api.Logger
-import uk.gov.hmrc.api.connector.ServiceLocatorConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.taxfreechildcareapplicationstatus.connectors.TfcasServiceLocator
 
 
 @Singleton
 class ApplicationRegistration @Inject()(serviceConfig: ServicesConfig,
-                                        serviceLocatorConnector: ServiceLocatorConnector) {
+                                        serviceLocatorConnector: TfcasServiceLocator) {
 
   val registrationEnabled: Boolean = serviceConfig.getConfBool("service-locator.enabled", defBool = true)
 
