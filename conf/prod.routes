@@ -2,6 +2,7 @@
 ->         /tax-free-childcare-applicant                 app.Routes
 ->         /                                             health.Routes
 ->         /                                             definition.Routes
+GET        /claims/:nino/:uniqueClaimsId                 uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers.GetTfcHistoryController.getTfcHistory(nino, uniqueClaimsId)
 
 GET        /admin/metrics                                com.kenshoo.play.metrics.MetricsController.metrics
 GET        /assets/*file                                 controllers.Assets.at(path="/public", file)
