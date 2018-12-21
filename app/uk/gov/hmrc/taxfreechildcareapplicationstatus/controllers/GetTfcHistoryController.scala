@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.taxfreechildcareapplicationstatus.controllers
 
+import java.io.{PrintWriter, StringWriter}
 import javax.inject.{Inject, Singleton}
 
+import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
@@ -77,16 +79,18 @@ class GetTfcHistoryController @Inject()(cc: ControllerComponents,
               case Left(NotFoundErr(message)) => NotFound(Json.toJson(NotFoundResponse(message)))
               case Left(ServerErrorErr) => InternalServerError(Json.toJson(InternalServerErrorResponse))
               case Left(ServiceUnavailableErr) => ServiceUnavailable(Json.toJson(ServiceUnavailableResponse))
-              case Left(GetTfcHistoryUnexpectedError(status, _)) if status == OK =>
-                // todo logging? n.b. if we do log then we must not log the body as it may contain sensitive info
+              case Left(GetTfcHistoryUnexpectedError(OK, _)) =>
+                Logger.warn("Unexpected response from get TFC History\nstatus=OK")
                 InternalServerError(Json.toJson(UnexpectedServerErrorResponse))
               case Left(GetTfcHistoryUnexpectedError(status, body)) =>
-                // todo logging?
+                Logger.warn(s"Unexpected response from get TFC History\nstatus=$status\nbody=$body")
                 InternalServerError(Json.toJson(UnexpectedServerErrorResponse))
             }
           } recover {
-            case _ =>
-              // todo logging?
+            case exception =>
+              val sw = new StringWriter()
+              exception.printStackTrace(new PrintWriter(sw))
+              Logger.warn(sw.toString)
               InternalServerError(Json.toJson(UnexpectedServerErrorResponse))
           }
         }
