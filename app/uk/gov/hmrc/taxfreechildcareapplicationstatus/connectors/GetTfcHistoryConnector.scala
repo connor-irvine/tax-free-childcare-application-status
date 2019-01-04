@@ -19,6 +19,7 @@ package uk.gov.hmrc.taxfreechildcareapplicationstatus.connectors
 import javax.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.config.AppConfig
 import uk.gov.hmrc.taxfreechildcareapplicationstatus.httpparsers.GetTfcHistoryParser
@@ -38,11 +39,11 @@ class GetTfcHistoryConnector @Inject()(appConfig: AppConfig,
     s"${appConfig.getDesUrl}/tax-free-childcare/claims/$nino/$uniqueClaimId"
 
   def getClaimsHistory(nino: String, uniqueClaimId: String)(implicit hc: HeaderCarrier): Future[GetTfcHistoryResponse] = {
-    val headerCarrier = hc
-      .withExtraHeaders(
-        "Environment" -> appConfig.desEnvironmentHeader,
-        "Authorization" -> s"Bearer ${appConfig.desAuthorisationToken}"
-      )
+    val headerCarrier =
+      hc.copy(authorization = Some(Authorization(s"Bearer ${appConfig.desAuthorisationToken}")))
+        .withExtraHeaders(
+          "Environment" -> appConfig.desEnvironmentHeader
+        )
     httpClient.GET[GetTfcHistoryResponse](url(nino, uniqueClaimId))(
       implicitly,
       headerCarrier,
