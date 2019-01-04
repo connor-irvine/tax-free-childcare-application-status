@@ -10,4 +10,7 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Add all the application routes to the prod.routes file
-->         /                          prod.Routes
+->         /                                              prod.Routes
+
+GET        /test-only/claims/:nino/:uniqueClaimsId        uk.gov.hmrc.taxfreechildcareapplicationstatus.testonly.controllers.GetTfcHistoryController.getTfcHistory(nino, uniqueClaimsId)
+GET        /test-only/app-config                          uk.gov.hmrc.taxfreechildcareapplicationstatus.testonly.controllers.GetAppConfig.getAppConfig
