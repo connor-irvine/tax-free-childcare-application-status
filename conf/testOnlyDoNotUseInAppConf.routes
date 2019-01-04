@@ -14,3 +14,5 @@
 
 GET        /test-only/claims/:nino/:uniqueClaimsId        uk.gov.hmrc.taxfreechildcareapplicationstatus.testonly.controllers.GetTfcHistoryController.getTfcHistory(nino, uniqueClaimsId)
 GET        /test-only/app-config                          uk.gov.hmrc.taxfreechildcareapplicationstatus.testonly.controllers.GetAppConfig.getAppConfig
+
+POST       /test-only/recall/service-locator              uk.gov.hmrc.taxfreechildcareapplicationstatus.testonly.controllers.RecallServiceLocator.recall
