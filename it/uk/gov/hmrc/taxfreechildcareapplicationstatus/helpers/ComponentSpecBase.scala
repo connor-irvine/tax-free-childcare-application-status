@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ trait ComponentSpecBase extends TestSuite with GuiceOneServerPerSuite with Wirem
   )
 
   def buildClientApp(path: String, headers: Map[String, String]): WSRequest =
-    ws.url(s"http://localhost:$port/tax-free-childcare-applicant$path")
+    ws.url(s"http://localhost:$port$path")
       .withHttpHeaders(
         headers.map {
           case (key, value) => (key, value)
