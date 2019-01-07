@@ -44,7 +44,7 @@ types:
   uniqueClaimId:
     pattern: "^\\d{11}$"
 
-/tax-free-childcare-applicant:
+/tax-free-childcare-application-status:
  /claims:
   /{nino}:
     uriParameters:
@@ -60,8 +60,8 @@ types:
         displayName: Tax Free Childcare Application Status
         description: !include documentation/overview.md
         is: [headers.acceptHeader, originatorIdHeader, correlationIdHeader]
-        (annotations.scope): "read:tax-free-childcare-applicant"
-        securedBy: [ sec.oauth_2_0: { scopes: [ "read:tax-free-childcare-applicant" ] } ]
+        (annotations.scope): "read:tax-free-childcare-application-status"
+        securedBy: [ sec.oauth_2_0: { scopes: [ "read:tax-free-childcare-application-status" ] } ]
         responses:
           200:
             body:
