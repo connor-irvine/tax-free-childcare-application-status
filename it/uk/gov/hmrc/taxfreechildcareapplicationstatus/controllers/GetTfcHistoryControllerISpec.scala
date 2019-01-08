@@ -43,7 +43,7 @@ class GetTfcHistoryControllerISpec extends WordSpec with Matchers with Component
         stubUnauthorised()
 
         val result = get(
-          uri = s"/tax-free-childcare-application-status/claims/$testNino/$testUniqueClaimId",
+          uri = s"/$testNino/$testUniqueClaimId",
           headers = Map(
             originatorId -> testOriginatorId,
             correlationId -> testCorrelationId
@@ -62,7 +62,7 @@ class GetTfcHistoryControllerISpec extends WordSpec with Matchers with Component
         stubGetTfcHistory(testNino, testUniqueClaimId)(OK, testOkResponse)
 
         val result = get(
-          uri = s"/tax-free-childcare-application-status/claims/$testNino/$testUniqueClaimId",
+          uri = s"/$testNino/$testUniqueClaimId",
           headers = Map(
             originatorId -> testOriginatorId,
             correlationId -> testCorrelationId
@@ -81,7 +81,7 @@ class GetTfcHistoryControllerISpec extends WordSpec with Matchers with Component
         stubGetTfcHistory(testNino, testUniqueClaimId)(NOT_FOUND, test404DesResponse)
 
         val result = get(
-          uri = s"/tax-free-childcare-application-status/claims/$testNino/$testUniqueClaimId",
+          uri = s"/$testNino/$testUniqueClaimId",
           headers = Map(
             originatorId -> testOriginatorId,
             correlationId -> testCorrelationId
@@ -101,7 +101,7 @@ class GetTfcHistoryControllerISpec extends WordSpec with Matchers with Component
         stubGetTfcHistory(testNino, testUniqueClaimId)(NOT_FOUND, "")
 
         val result = get(
-          uri = s"/tax-free-childcare-application-status/claims/$testNino/$testUniqueClaimId",
+          uri = s"/$testNino/$testUniqueClaimId",
           headers = Map(
             originatorId -> testOriginatorId,
             correlationId -> testCorrelationId
