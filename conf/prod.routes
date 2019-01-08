@@ -1,7 +1,9 @@
 # Add all the application routes to the app.routes file
-->         /tax-free-childcare-application-status        app.Routes
 ->         /                                             health.Routes
 ->         /                                             definition.Routes
 
 GET        /admin/metrics                                com.kenshoo.play.metrics.MetricsController.metrics
 GET        /assets/*file                                 controllers.Assets.at(path="/public", file)
+
+# must be included last since it matches to /:any/:any and would shadow the other routes above
+->         /                                             app.Routes

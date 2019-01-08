@@ -5,7 +5,7 @@
 {
   "scopes":[
     {
-        "key": "read:tax-free-childcare-application-status",
+        "key": "read:tax-free-childcare-applicant/claims",
         "name": "Tax Free Childcare Application Status",
         "description": "Check status of Tax Free Childcare application"
     }
